@@ -1,0 +1,198 @@
+<% 
+const body = `
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex align-items-center mb-4">
+                <a href="/admin" class="btn btn-outline-secondary me-3">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+                <h2><i class="bi bi-link-45deg"></i> Link Details: /${link.slug}</h2>
+            </div>
+
+            <!-- Link Info -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Link Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-3"><strong>Slug:</strong></div>
+                                <div class="col-sm-9">
+                                    <code>/go/${link.slug}</code>
+                                    <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('${req.protocol}://${req.get('host')}/go/${link.slug}')">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3"><strong>Target URL:</strong></div>
+                                <div class="col-sm-9">
+                                    <a href="${link.targetUrl}" target="_blank" class="text-break">${link.targetUrl}</a>
+                                </div>
+                            </div>
+                            <% if (link.title) { %>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3"><strong>Title:</strong></div>
+                                <div class="col-sm-9">${link.title}</div>
+                            </div>
+                            <% } %>
+                            <% if (link.description) { %>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3"><strong>Description:</strong></div>
+                                <div class="col-sm-9">${link.description}</div>
+                            </div>
+                            <% } %>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3"><strong>Status:</strong></div>
+                                <div class="col-sm-9">
+                                    <span class="badge ${link.isActive ? 'bg-success' : 'bg-secondary'}">
+                                        ${link.isActive ? 'Active' : 'Inactive'}
+                                    </span>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3"><strong>Created:</strong></div>
+                                <div class="col-sm-9">${new Date(link.createdAt).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-graph-up"></i> Statistics</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center">
+                                <h3 class="text-primary">${link._count.clicks.toLocaleString()}</h3>
+                                <p class="text-muted mb-0">Total Clicks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Click Chart -->
+            <% if (clicksByDate.length > 0) { %>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Clicks Over Time (Last 30 Days)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="clicksChart" height="100"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Recent Clicks -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Clicks</h5>
+                        </div>
+                        <div class="card-body">
+                            <% if (link.clicks.length === 0) { %>
+                            <p class="text-muted text-center py-4">No clicks recorded yet.</p>
+                            <% } else { %>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Date & Time</th>
+                                            <th>User Agent</th>
+                                            <th>Referer</th>
+                                            <th>IP Address</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% link.clicks.forEach(click => { %>
+                                        <tr>
+                                            <td class="small">${new Date(click.clickedAt).toLocaleString()}</td>
+                                            <td class="small text-muted">
+                                                ${click.userAgent ? (click.userAgent.length > 50 ? click.userAgent.substring(0, 50) + '...' : click.userAgent) : '-'}
+                                            </td>
+                                            <td class="small text-muted">
+                                                ${click.referer ? (click.referer.length > 30 ? click.referer.substring(0, 30) + '...' : click.referer) : '-'}
+                                            </td>
+                                            <td class="small">${click.ipAddress || '-'}</td>
+                                        </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show success feedback
+        const button = event.target.closest('button');
+        const originalIcon = button.innerHTML;
+        button.innerHTML = '<i class="bi bi-check"></i>';
+        setTimeout(() => {
+            button.innerHTML = originalIcon;
+        }, 2000);
+    });
+}
+
+<% if (clicksByDate.length > 0) { %>
+// Chart
+const ctx = document.getElementById('clicksChart').getContext('2d');
+const chartData = ${JSON.stringify(clicksByDate.reverse())};
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: chartData.map(item => new Date(item.date).toLocaleDateString()),
+        datasets: [{
+            label: 'Clicks',
+            data: chartData.map(item => item.count),
+            borderColor: '#0d6efd',
+            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+<% } %>
+</script>
+`;
+const locals = { page: 'details' };
+%>
+<%- include('../layout', { body, locals }) %>

@@ -1,0 +1,90 @@
+<% 
+const body = `
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex align-items-center mb-4">
+                <a href="/admin" class="btn btn-outline-secondary me-3">
+                    <i class="bi bi-arrow-left"></i> 뒤로
+                </a>
+                <h2><i class="bi bi-plus-circle"></i> 새 링크 생성</h2>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <% if (typeof error !== 'undefined') { %>
+                            <div class="alert alert-danger" role="alert">
+                                <i class="bi bi-exclamation-triangle"></i> ${error}
+                            </div>
+                            <% } %>
+
+                            <form method="POST" action="/admin/create">
+                                <div class="mb-3">
+                                    <label for="slug" class="form-label">슬러그 <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">/go/</span>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="slug" 
+                                               name="slug" 
+                                               value="${typeof formData !== 'undefined' ? (formData.slug || '') : ''}"
+                                               placeholder="my-consultation-link"
+                                               pattern="[a-zA-Z0-9-_]+"
+                                               required>
+                                    </div>
+                                    <div class="form-text">영문, 숫자, 하이픈(-), 언더스코어(_)만 사용 가능합니다.</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="targetUrl" class="form-label">대상 URL <span class="text-danger">*</span></label>
+                                    <input type="url" 
+                                           class="form-control" 
+                                           id="targetUrl" 
+                                           name="targetUrl" 
+                                           value="${typeof formData !== 'undefined' ? (formData.targetUrl || '') : ''}"
+                                           placeholder="https://example.com/consultation"
+                                           required>
+                                    <div class="form-text">사용자가 리다이렉트될 URL입니다.</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">제목</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="title" 
+                                           name="title" 
+                                           value="${typeof formData !== 'undefined' ? (formData.title || '') : ''}"
+                                           placeholder="상담 링크">
+                                    <div class="form-text">쉬운 식별을 위한 선택적 제목입니다.</div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="description" class="form-label">설명</label>
+                                    <textarea class="form-control" 
+                                              id="description" 
+                                              name="description" 
+                                              rows="3"
+                                              placeholder="이 리다이렉트 링크에 대한 설명">${typeof formData !== 'undefined' ? (formData.description || '') : ''}</textarea>
+                                    <div class="form-text">내부 메모를 위한 선택적 설명입니다.</div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle"></i> 링크 생성
+                                    </button>
+                                    <a href="/admin" class="btn btn-secondary">취소</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+`;
+const locals = { page: 'create' };
+%>
+<%- include('../layout', { body, locals }) %>

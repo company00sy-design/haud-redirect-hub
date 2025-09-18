@@ -1,0 +1,249 @@
+<% 
+const locals = { page: 'dashboard' };
+const body = `
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-speedometer2"></i> 대시보드</h2>
+                <a href="/admin/create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> 새 링크 생성
+                </a>
+            </div>
+
+            <!-- Success message -->
+            ${typeof query !== 'undefined' && query.success === 'created' ? `
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                링크가 성공적으로 생성되었습니다!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            ` : ''}
+
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card stats-card border-primary">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title text-primary mb-0">전체 링크</h5>
+                                    <h3 class="mb-0">${links.length}</h3>
+                                </div>
+                                <div class="text-primary">
+                                    <i class="bi bi-link-45deg fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card stats-card border-success">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title text-success mb-0">총 클릭수</h5>
+                                    <h3 class="mb-0">${totalClicks.toLocaleString()}</h3>
+                                </div>
+                                <div class="text-success">
+                                    <i class="bi bi-cursor-fill fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card stats-card border-info">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title text-info mb-0">24시간 클릭</h5>
+                                    <h3 class="mb-0">${recentClicks.toLocaleString()}</h3>
+                                </div>
+                                <div class="text-info">
+                                    <i class="bi bi-graph-up fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blog Source Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="bi bi-graph-up"></i> 블로그별 총 클릭수</h5>
+                            <a href="/admin/analytics" class="btn btn-sm btn-outline-primary">자세히 보기</a>
+                        </div>
+                        <div class="card-body">
+                            ${clicksBySource.length === 0 ? `
+                            <p class="text-muted">클릭 데이터가 없습니다.</p>
+                            ` : `
+                            <div class="row">
+                                ${clicksBySource.map(item => `
+                                <div class="col-6 mb-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">${item.source}</span>
+                                        <strong>${item.count.toLocaleString()}</strong>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar" style="width: ${(item.count / clicksBySource[0].count * 100)}%"></div>
+                                    </div>
+                                </div>
+                                `).join('')}
+                            </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-clock"></i> 최근 24시간 블로그별</h5>
+                        </div>
+                        <div class="card-body">
+                            ${recentClicksBySource.length === 0 ? `
+                            <p class="text-muted">최근 클릭이 없습니다.</p>
+                            ` : `
+                            <div class="row">
+                                ${recentClicksBySource.map(item => `
+                                <div class="col-6 mb-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">${item.source}</span>
+                                        <strong>${item.count.toLocaleString()}</strong>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-info" style="width: ${recentClicksBySource[0] ? (item.count / recentClicksBySource[0].count * 100) : 0}%"></div>
+                                    </div>
+                                </div>
+                                `).join('')}
+                            </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Performing Links -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-trophy"></i> 인기 링크</h5>
+                        </div>
+                        <div class="card-body">
+                            ${topLinks.length === 0 ? `
+                            <p class="text-muted">링크가 없습니다.</p>
+                            ` : `
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>슬러그</th>
+                                            <th>대상 URL</th>
+                                            <th>클릭수</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${topLinks.map(link => `
+                                        <tr>
+                                            <td>
+                                                <a href="/admin/link/${link.id}" class="text-decoration-none">
+                                                    /${link.slug}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="${link.targetUrl}" target="_blank" class="text-muted small">
+                                                    ${link.targetUrl.length > 50 ? link.targetUrl.substring(0, 50) + '...' : link.targetUrl}
+                                                </a>
+                                            </td>
+                                            <td><span class="badge bg-primary">${link._count.clicks}</span></td>
+                                        </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Links -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-list"></i> 전체 링크</h5>
+                        </div>
+                        <div class="card-body">
+                            ${links.length === 0 ? `
+                            <div class="text-center py-4">
+                                <i class="bi bi-link-45deg fs-1 text-muted"></i>
+                                <p class="text-muted mt-2">리다이렉트 링크가 없습니다.</p>
+                                <a href="/admin/create" class="btn btn-primary">첫 번째 링크 생성하기</a>
+                            </div>
+                            ` : `
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>슬러그</th>
+                                            <th>대상 URL</th>
+                                            <th>제목</th>
+                                            <th>상태</th>
+                                            <th>클릭수</th>
+                                            <th>생성일</th>
+                                            <th>작업</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${links.map(link => `
+                                        <tr>
+                                            <td>
+                                                <a href="/admin/link/${link.id}" class="text-decoration-none fw-bold">
+                                                    /${link.slug}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="${link.targetUrl}" target="_blank" class="text-muted small">
+                                                    ${link.targetUrl.length > 40 ? link.targetUrl.substring(0, 40) + '...' : link.targetUrl}
+                                                </a>
+                                            </td>
+                                            <td>${link.title || '-'}</td>
+                                            <td>
+                                                <span class="badge status-badge ${link.isActive ? 'bg-success' : 'bg-secondary'}">
+                                                    ${link.isActive ? '활성' : '비활성'}
+                                                </span>
+                                            </td>
+                                            <td><span class="badge bg-primary">${link._count.clicks}</span></td>
+                                            <td class="small text-muted">${new Date(link.createdAt).toLocaleDateString()}</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="/admin/link/${link.id}" class="btn btn-outline-primary">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <form method="POST" action="/admin/toggle/${link.id}" class="d-inline">
+                                                        <button type="submit" class="btn btn-outline-secondary">
+                                                            <i class="bi bi-${link.isActive ? 'pause' : 'play'}"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+`;
+%>
+<%- include('../layout', { body, locals }) %>

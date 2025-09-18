@@ -1,0 +1,322 @@
+<% 
+const locals = { page: 'analytics' };
+const body = `
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex align-items-center mb-4">
+                <a href="/admin" class="btn btn-outline-secondary me-3">
+                    <i class="bi bi-arrow-left"></i> 뒤로
+                </a>
+                <h2><i class="bi bi-bar-chart"></i> 블로그 분석</h2>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                ${totalClicksBySource.map((item, index) => `
+                <div class="col-md-2">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">${item.source}</h5>
+                            <h3 class="text-success">${item.count.toLocaleString()}</h3>
+                            <p class="small text-muted mb-0">${item.unique_links}개 링크</p>
+                        </div>
+                    </div>
+                </div>
+                `).join('')}
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row mb-4">
+                <!-- Blog Traffic Chart -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-graph-up"></i> 블로그 트래픽 추이 (최근 30일)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="trafficChart" height="100"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Source Distribution -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-pie-chart"></i> 트래픽 분포</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hourly Distribution -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-clock"></i> 시간대별 분포 (최근 7일)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="hourlyChart" height="80"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Link Performance by Source -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-list-ul"></i> 소스별 링크 성과</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>링크</th>
+                                            <th>소스</th>
+                                            <th>클릭수</th>
+                                            <th>성과</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${linksBySource.map(item => `
+                                        <tr>
+                                            <td>
+                                                <strong>/${item.slug}</strong>
+                                                ${item.title ? `<br><small class="text-muted">${item.title}</small>` : ''}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">${item.source}</span>
+                                            </td>
+                                            <td>${item.count.toLocaleString()}</td>
+                                            <td>
+                                                <div class="progress" style="width: 100px; height: 6px;">
+                                                    <div class="progress-bar" style="width: ${linksBySource[0] ? (item.count / linksBySource[0].count * 100) : 0}%"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usage Instructions -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card border-info">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="bi bi-info-circle"></i> 블로그 추적 사용법</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>각 블로그에서 사용할 URL 형식:</strong></p>
+                            
+                            <!-- Blog Information -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h6><i class="bi bi-journals"></i> 블로그 목록</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <small class="text-muted">
+                                                • HAUD: <a href="https://blog.naver.com/haudsystem" target="_blank">haudsystem</a><br>
+                                                • HanPro: <a href="https://blog.naver.com/gaguyong" target="_blank">gaguyong</a><br>
+                                                • Baek: <a href="https://blog.naver.com/ds5izi2" target="_blank">ds5izi2</a>
+                                            </small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <small class="text-muted">
+                                                • Kang: <a href="https://blog.naver.com/mance0712" target="_blank">mance0712</a><br>
+                                                • DanPro: <a href="https://blog.naver.com/gagumaster86" target="_blank">gagumaster86</a><br>
+                                                • LaHom: <a href="https://blog.naver.com/lahom_official" target="_blank">lahom_official</a>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- URL Examples -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="bi bi-chat-dots"></i> 카카오톡 오픈채팅 링크</h6>
+                                    <div class="mb-2">
+                                        <small>HAUD 블로그용:</small><br>
+                                        <code style="font-size: 0.8em;">http://localhost:3001/go/kakao?source=HAUD</code>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1" onclick="copyToClipboard('http://localhost:3001/go/kakao?source=HAUD')">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small>HanPro 블로그용:</small><br>
+                                        <code style="font-size: 0.8em;">http://localhost:3001/go/kakao?source=HanPro</code>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1" onclick="copyToClipboard('http://localhost:3001/go/kakao?source=HanPro')">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small>나머지 블로그들도 동일한 패턴:</small><br>
+                                        <small class="text-muted">?source=Baek, ?source=Kang, ?source=DanPro, ?source=LaHom</small>
+                                    </div>
+                                    <small class="text-muted">→ https://open.kakao.com/o/sBSdpISh</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="bi bi-telephone"></i> 전화 상담 링크</h6>
+                                    <div class="mb-2">
+                                        <small>HAUD 블로그용:</small><br>
+                                        <code style="font-size: 0.8em;">http://localhost:3001/go/call?source=HAUD</code>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1" onclick="copyToClipboard('http://localhost:3001/go/call?source=HAUD')">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small>HanPro 블로그용:</small><br>
+                                        <code style="font-size: 0.8em;">http://localhost:3001/go/call?source=HanPro</code>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1" onclick="copyToClipboard('http://localhost:3001/go/call?source=HanPro')">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small>나머지 블로그들도 동일한 패턴:</small><br>
+                                        <small class="text-muted">?source=Baek, ?source=Kang, ?source=DanPro, ?source=LaHom</small>
+                                    </div>
+                                    <small class="text-muted">→ tel:01066357431</small>
+                                </div>
+                            </div>
+                            <p class="mt-3 mb-0">
+                                <strong>추가 옵션:</strong> 
+                                <code>?source=HAUD&campaign=winter2024</code> 형태로 캠페인 정보도 추가 가능
+                            </p>
+                            
+                            <script>
+                            function copyToClipboard(text) {
+                                navigator.clipboard.writeText(text).then(function() {
+                                    const button = event.target.closest('button');
+                                    const originalIcon = button.innerHTML;
+                                    button.innerHTML = '<i class="bi bi-check text-success"></i>';
+                                    setTimeout(() => {
+                                        button.innerHTML = originalIcon;
+                                    }, 2000);
+                                });
+                            }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Process data for charts
+const trafficData = ${JSON.stringify(clicksBySourceAndDate)};
+const sourceData = ${JSON.stringify(totalClicksBySource)};
+const hourlyData = ${JSON.stringify(hourlyDistribution)};
+
+// Traffic Trends Chart
+const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+const sources = [...new Set(trafficData.map(item => item.source))];
+const dates = [...new Set(trafficData.map(item => item.date))].sort();
+
+const datasets = sources.map((source, index) => {
+    const colors = ['#0d6efd', '#198754', '#dc3545', '#fd7e14', '#6f42c1', '#20c997'];
+    return {
+        label: source,
+        data: dates.map(date => {
+            const item = trafficData.find(d => d.source === source && d.date === date);
+            return item ? item.count : 0;
+        }),
+        borderColor: colors[index % colors.length],
+        backgroundColor: colors[index % colors.length] + '20',
+        fill: false,
+        tension: 0.4
+    };
+});
+
+new Chart(trafficCtx, {
+    type: 'line',
+    data: {
+        labels: dates.map(date => new Date(date).toLocaleDateString()),
+        datasets: datasets
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 }
+            }
+        }
+    }
+});
+
+// Distribution Pie Chart
+const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+new Chart(distributionCtx, {
+    type: 'doughnut',
+    data: {
+        labels: sourceData.map(item => item.source),
+        datasets: [{
+            data: sourceData.map(item => item.count),
+            backgroundColor: ['#0d6efd', '#198754', '#dc3545', '#fd7e14', '#6f42c1', '#20c997']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Hourly Distribution Chart
+const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
+const hours = Array.from({length: 24}, (_, i) => String(i).padStart(2, '0'));
+const hourlySources = [...new Set(hourlyData.map(item => item.source))];
+
+const hourlyDatasets = hourlySources.map((source, index) => {
+    const colors = ['#0d6efd', '#198754', '#dc3545', '#fd7e14', '#6f42c1', '#20c997'];
+    return {
+        label: source,
+        data: hours.map(hour => {
+            const item = hourlyData.find(d => d.source === source && d.hour === hour);
+            return item ? item.count : 0;
+        }),
+        backgroundColor: colors[index % colors.length] + '80',
+        borderColor: colors[index % colors.length],
+        borderWidth: 1
+    };
+});
+
+new Chart(hourlyCtx, {
+    type: 'bar',
+    data: {
+        labels: hours.map(h => h + ':00'),
+        datasets: hourlyDatasets
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 }
+            }
+        }
+    }
+});
+</script>
+`;
+%>
+<%- include('../layout', { body, locals }) %>

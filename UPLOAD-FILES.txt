@@ -1,0 +1,32 @@
+GitHub에 업로드할 파일 목록:
+
+필수 파일들:
+├── src/
+│   ├── index.ts
+│   └── routes/
+│       ├── admin.ts
+│       └── redirect.ts
+├── views/
+│   ├── layout.ejs
+│   └── admin/
+│       ├── dashboard.ejs
+│       ├── analytics.ejs
+│       ├── create-link.ejs
+│       └── error.ejs
+├── prisma/
+│   ├── schema.prisma
+│   └── seed.ts
+├── package.json
+├── tsconfig.json
+├── Dockerfile
+├── railway.json
+├── .gitignore
+└── README-DEPLOY.md
+
+제외할 파일들 (.gitignore에 포함):
+- node_modules/
+- dist/
+- *.db
+- .env
+
+총 업로드할 파일 수: 약 15개
