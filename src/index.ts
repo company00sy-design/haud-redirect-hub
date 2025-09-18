@@ -7,7 +7,7 @@ import redirectRoutes from './routes/redirect';
 import adminRoutes from './routes/admin';
 
 const app = express();
-const port = process.env.PORT || 3002;
+const port = parseInt(process.env.PORT || '3002', 10);
 const prisma = new PrismaClient();
 
 // Middleware
