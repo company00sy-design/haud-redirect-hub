@@ -16,6 +16,9 @@
   "keywords": ["redirect", "analytics", "express", "typescript"],
   "author": "",
   "license": "MIT",
+  "prisma": {
+    "schema": "./prisma/schema.prisma"
+  },
   "dependencies": {
     "@prisma/client": "^5.4.2",
     "express": "^4.18.2",
