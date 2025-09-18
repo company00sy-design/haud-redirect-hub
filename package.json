@@ -4,14 +4,14 @@
   "description": "URL redirect hub with analytics dashboard",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "build": "prisma generate && tsc",
+    "start": "prisma db push && node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:seed": "ts-node prisma/seed.ts",
-    "deploy": "npm run build && npm run db:push && npm run db:generate && npm run db:seed",
+    "deploy": "prisma generate && npm run build && prisma db push && ts-node prisma/seed.ts",
     "postinstall": "prisma generate"
   },
   "keywords": ["redirect", "analytics", "express", "typescript"],
