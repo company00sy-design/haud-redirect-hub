@@ -88,7 +88,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
     
   } catch (error: any) {
-    console.error('Admin dashboard error:', error);
+    process.stderr.write(`Admin dashboard error: ${error}\n`);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -142,7 +142,7 @@ router.get('/link/:id', async (req: Request, res: Response) => {
     });
     
   } catch (error: any) {
-    console.error('Link details error:', error);
+    process.stderr.write(`Link details error:: ${error}\n`);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -182,7 +182,7 @@ router.post('/create', async (req: Request, res: Response) => {
     res.redirect('/admin?success=created');
     
   } catch (error: any) {
-    console.error('Create link error:', error);
+    process.stderr.write(`Create link error:: ${error}\n`);
     res.render('admin/create-link', {
       title: '새 링크 생성',
       error: '링크 생성에 실패했습니다',
@@ -212,7 +212,7 @@ router.post('/toggle/:id', async (req: Request, res: Response) => {
     res.redirect('/admin');
     
   } catch (error: any) {
-    console.error('Toggle link error:', error);
+    process.stderr.write(`Toggle link error:: ${error}\n`);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -302,7 +302,7 @@ router.get('/analytics', async (req: Request, res: Response) => {
     });
     
   } catch (error: any) {
-    console.error('Analytics error:', error);
+    process.stderr.write(`Analytics error:: ${error}\n`);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

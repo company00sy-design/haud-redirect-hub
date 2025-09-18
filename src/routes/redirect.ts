@@ -42,7 +42,7 @@ router.get('/go/:slug', async (req: Request, res: Response) => {
     res.redirect(302, redirectLink.targetUrl);
     
   } catch (error: any) {
-    console.error('Redirect error:', error);
+    process.stderr.write(`Redirect error: ${error}\n`);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

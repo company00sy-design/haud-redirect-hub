@@ -14,7 +14,7 @@ let prisma: PrismaClient;
 try {
   prisma = new PrismaClient();
   console.log('✅ Prisma Client initialized');
-} catch (error) {
+} catch (error: any) {
   console.error('❌ Prisma Client initialization failed:', error);
   process.exit(1);
 }
@@ -43,7 +43,7 @@ app.get('/health', async (req, res) => {
       database: 'connected',
       port: port
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ 
       status: 'ERROR', 
       timestamp: new Date().toISOString(),
