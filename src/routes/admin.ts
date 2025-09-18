@@ -87,7 +87,7 @@ router.get('/', async (req: Request, res: Response) => {
       title: '관리자 대시보드'
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Admin dashboard error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -141,7 +141,7 @@ router.get('/link/:id', async (req: Request, res: Response) => {
       title: `링크 상세 - ${link.slug}`
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Link details error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -181,7 +181,7 @@ router.post('/create', async (req: Request, res: Response) => {
     
     res.redirect('/admin?success=created');
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Create link error:', error);
     res.render('admin/create-link', {
       title: '새 링크 생성',
@@ -211,7 +211,7 @@ router.post('/toggle/:id', async (req: Request, res: Response) => {
     
     res.redirect('/admin');
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Toggle link error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -301,7 +301,7 @@ router.get('/analytics', async (req: Request, res: Response) => {
       title: '블로그 분석'
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Analytics error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
