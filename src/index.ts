@@ -32,14 +32,39 @@ app.set('views', path.join(__dirname, '../views'));
 // Static files
 app.use('/static', express.static(path.join(__dirname, '../public')));
 
+// Health check with detailed info
+app.get('/health', async (req, res) => {
+  try {
+    // Test database connection
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ 
+      status: 'OK', 
+      timestamp: new Date().toISOString(),
+      database: 'connected',
+      port: port
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      status: 'ERROR', 
+      timestamp: new Date().toISOString(),
+      database: 'disconnected',
+      error: error.message
+    });
+  }
+});
+
+// Simple root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'HAUD Redirect Hub is running!',
+    admin: '/admin',
+    health: '/health'
+  });
+});
+
 // Routes
 app.use('/', redirectRoutes);
 app.use('/admin', adminRoutes);
-
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
-});
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -59,7 +84,7 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-const server = app.listen(port, '0.0.0.0', async () => {
+const server = app.listen(port, async () => {
   console.log(`✅ Server is running on port ${port}`);
   console.log(`🌐 Server URL: http://localhost:${port}`);
   console.log(`📊 Admin Dashboard: http://localhost:${port}/admin`);
