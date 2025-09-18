@@ -8,7 +8,16 @@ import adminRoutes from './routes/admin';
 
 const app = express();
 const port = parseInt(process.env.PORT || '3000', 10);
-const prisma = new PrismaClient();
+
+// Initialize Prisma with error handling
+let prisma: PrismaClient;
+try {
+  prisma = new PrismaClient();
+  console.log('✅ Prisma Client initialized');
+} catch (error) {
+  console.error('❌ Prisma Client initialization failed:', error);
+  process.exit(1);
+}
 
 // Middleware
 app.use(helmet());
@@ -50,11 +59,26 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-const server = app.listen(port, '0.0.0.0', () => {
+const server = app.listen(port, '0.0.0.0', async () => {
   console.log(`✅ Server is running on port ${port}`);
   console.log(`🌐 Server URL: http://localhost:${port}`);
   console.log(`📊 Admin Dashboard: http://localhost:${port}/admin`);
   console.log(`📈 Blog Analytics: http://localhost:${port}/admin/analytics`);
+  
+  // Initialize seed data after server starts
+  try {
+    const { exec } = require('child_process');
+    exec('npx ts-node prisma/seed.ts', (error, stdout, stderr) => {
+      if (error) {
+        console.log('⚠️ Seed data already exists or error:', error.message);
+      } else {
+        console.log('✅ Seed data initialized');
+      }
+    });
+  } catch (error) {
+    console.log('⚠️ Seed initialization skipped:', error);
+  }
+  
   console.log(`🎯 Ready to track clicks from 6 blogs!`);
 });
 
