@@ -4,8 +4,8 @@
   "description": "URL redirect hub with analytics dashboard",
   "main": "dist/index.js",
   "scripts": {
-    "build": "prisma generate --schema=./prisma/schema.prisma && tsc",
-    "start": "prisma db push --schema=./prisma/schema.prisma && node dist/index.js",
+    "build": "prisma generate && tsc",
+    "start": "prisma db push && node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",

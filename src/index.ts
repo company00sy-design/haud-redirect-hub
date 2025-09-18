@@ -93,15 +93,15 @@ const server = app.listen(port, async () => {
   // Initialize seed data after server starts
   try {
     const { exec } = require('child_process');
-    exec('npx ts-node prisma/seed.ts', (error, stdout, stderr) => {
+    exec('npx ts-node prisma/seed.ts', (error: any, stdout: any, stderr: any) => {
       if (error) {
         console.log('⚠️ Seed data already exists or error:', error.message);
       } else {
         console.log('✅ Seed data initialized');
       }
     });
-  } catch (error) {
-    console.log('⚠️ Seed initialization skipped:', error);
+  } catch (error: any) {
+    console.log('⚠️ Seed initialization skipped:', error?.message || error);
   }
   
   console.log(`🎯 Ready to track clicks from 6 blogs!`);
