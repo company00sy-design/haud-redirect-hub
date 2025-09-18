@@ -7,26 +7,17 @@ RUN apk add --no-cache openssl
 # Set working directory
 WORKDIR /app
 
-# Copy package files first
-COPY package*.json ./
-
-# Copy Prisma schema before npm install
-COPY prisma ./prisma/
+# Copy everything
+COPY . .
 
 # Install dependencies
 RUN npm install
 
-# Copy all source code
-COPY . .
+# Generate Prisma client
+RUN npx prisma generate
 
-# Generate Prisma client with explicit schema path
-RUN npx prisma generate --schema=./prisma/schema.prisma
-
-# Build TypeScript
+# Build application
 RUN npm run build
 
-# Expose port
-EXPOSE 3001
-
-# Runtime commands: setup database and start server
-CMD ["sh", "-c", "npx prisma db push --schema=./prisma/schema.prisma && npx ts-node prisma/seed.ts && node dist/index.js"]
+# Setup database and start
+CMD ["sh", "-c", "npx prisma db push && npx ts-node prisma/seed.ts && node dist/index.js"]
