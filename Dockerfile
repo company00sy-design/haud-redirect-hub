@@ -19,5 +19,5 @@ RUN npx prisma generate
 # Build application
 RUN npm run build
 
-# Setup database and start
-CMD ["sh", "-c", "npx prisma db push && npx ts-node prisma/seed.ts && node dist/index.js"]
+# Setup database and start with error handling
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && echo 'Database ready' && npx ts-node prisma/seed.ts && echo 'Seed completed' && node dist/index.js"]

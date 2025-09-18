@@ -50,11 +50,17 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server is running on http://localhost:${port}`);
-  console.log(`Network access: http://172.30.1.46:${port}`);
-  console.log(`Admin Dashboard: http://localhost:${port}/admin`);
-  console.log(`Blog Analytics: http://localhost:${port}/admin/analytics`);
+const server = app.listen(port, '0.0.0.0', () => {
+  console.log(`✅ Server is running on port ${port}`);
+  console.log(`🌐 Server URL: http://localhost:${port}`);
+  console.log(`📊 Admin Dashboard: http://localhost:${port}/admin`);
+  console.log(`📈 Blog Analytics: http://localhost:${port}/admin/analytics`);
+  console.log(`🎯 Ready to track clicks from 6 blogs!`);
+});
+
+server.on('error', (err) => {
+  console.error('❌ Server error:', err);
+  process.exit(1);
 });
 
 export { prisma };
